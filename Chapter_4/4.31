@@ -1,0 +1,25 @@
+word dstE = [
+	D_icode in {IOPL, IRRMOVQ, IIRMOVQ}: RB,
+	D_icode in {IPUSHQ, IPOPQ, ICALL, IRET} : RESP,
+	1: RNONE;
+]
+
+4.32:
+
+word d_valA = [
+	D_icode in { ICALL, IJXX } : D_valP; # Use incremented PC
+	d_srcA == e_dstE : e_valE; # Forward valE from execute
+	
+	d_srcA == M_dstE : M_valE; # Forward valE from memory
+	d_srcA == M_dstM : m_valM; # Forward valM from memory
+	
+	d_srcA == W_dstM : W_valM; # Forward valM from write back
+	d_srcA == W_dstE : W_valE; # Forward valE from write back
+	1 : d_rvalA; # Use value read from register file
+]
+
+irmovq $5, %rdx
+irmovq $0x100, %rsp
+rmmovq %rdx, 0(%rsp)
+popq %rsp
+rrmovq %rsp, %rax
