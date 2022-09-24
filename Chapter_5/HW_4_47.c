@@ -34,3 +34,41 @@ void bubble_p(long *data, long count) {
 		}
 	}
 }
+
+/*
+	data in %rdi, count in %rsi
+	%rdx, %rcx, %r8, %r9
+
+bubble_p:
+	rrmovq %rdi, %r12	// %r12 = data
+	irmovq $1, %r11
+	irmovq $0, %r10
+	irmovq $8, %r8
+	subq %r11, %rsi // %rsi = last
+	jmpl end
+outerloop:
+innerloop:
+	addq %r8, %r12	// %r12 = (data + i)
+	rrmovq %r12, %r13
+	addq %r8, %r13	// %r13 = (data + i + 1)
+	
+	mrmovq (%r12), %r9 *(data + i)
+	mrmovq (%r13), %r14	*(data + i + 1)
+	rrmovq %r14, %rax
+	subq %r9, %rax
+	jmple innertest
+	rrmovq %r14, %rax
+	rmmovq %r9, (%r13)
+	rmmovq %rax, (%r12)
+innertest:
+	rrmovq %rsi, %rdx
+	addq %r11, %r10
+	subq %r10, %rdx
+	jmpg innerloop
+outertest:
+	subq %r11, %rsi
+	jmpge outerloop
+end:
+	ret
+
+*/
