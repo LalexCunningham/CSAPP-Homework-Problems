@@ -29,7 +29,7 @@ long switchv(long idx) {
 int main() {
 	long vals[CNT];
 	long i;
-	for (i = 0l i < CNT; i++) {
+	for (i = 0; i < CNT; i++) {
 		vals[i] = switchv(i + MINVAL);
 		printf("idx = %ld, val = 0x%lx\n", i + MINVAL, vals[i]);
 	}
