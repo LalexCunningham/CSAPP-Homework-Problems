@@ -9,12 +9,12 @@ main:
 
 .align 8
 array:
-    .quad 0x03
     .quad 0x05
+    .quad 0x04
+    .quad 0x03
     .quad 0x02
     .quad 0x01
-    .quad 0x03
-    .quad 0x04
+    .quad 0x01
     
 bubble_p:
     irmovq $1, %r11     // constant 1
@@ -39,14 +39,18 @@ innerloop:
     
     rrmovq %rbx, %r14   
     rrmovq %r14, %r13
-    subq %rdx, %r14     
+    subq %rdx, %r14    
     
-    cmovl  %rdx, %rbx
-    cmovl  %r13, %rdx
+    irmovq $0, %r9
+    cmovl %r8, %r9
     
+    rrmovq %rax, %rcx
+    addq %r9, %rcx      // data + i + (1 or 0, depending on cmov)
+    mrmovq (%rcx), %rbx
+
     // Swap
-    rmmovq %rdx, (%rax)
-    rmmovq %rbx, (%rcx)
+    rmmovq %rdx, (%rcx)
+    rmmovq %rbx, (%rax)
     
 skip:   
     addq %r11, %r12
