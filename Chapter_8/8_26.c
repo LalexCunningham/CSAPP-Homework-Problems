@@ -6,7 +6,7 @@
 void eval(char *cmdline);
 int parseline(char *buf, char **argv);
 int builtin_command(char **argv);
-int getPathVector(char *pathVector);
+int getPathVector(char **pathVector, char *pathBuffer);
 
 int main(int argc, char const *argv[])
 {
@@ -44,8 +44,9 @@ void eval(char *cmdline) {
         /* Not a builtin command, run argv as a file */
         if ((pid = Fork()) == 0) {
             /* Child Process */
-            char *path[20];
-            getPathVector(path);
+            char pathBuffer[MAXPATH];
+            char *pathVector[20];
+            getPathVector(pathVector, pathBuffer);
             if (execve(argv[0], argv, environ) < 0) {
                 printf("%s: Command not found.\n", argv[0]);
                 exit(0);
@@ -112,16 +113,23 @@ int builtin_command(char **argv) {
     return 0;   /* Not a builtin command */
 }
 
-int getPathVector(char **pathVector) {
-    char pathString[MAXPATH] = "";
-    char *pathTemp;
+int getPathVector(char **pathVector, char *pathBuffer) {
+    char *pathTemp, *delim;
+    int pathc = 0;
     
     if ((pathTemp = getenv("PATH")) != NULL) {
-        strncpy(pathString, pathTemp);
+        strcpy(pathBuffer, pathTemp);
     } else {
         return -1;
     }
 
-    printf("%s\n", pathString);
+    while((delim = strchr(pathBuffer, ':'))) {
+        pathVector[pathc++] = pathBuffer;
+        *delim = '\0';
+        pathBuffer = delim + 1;
+    }
+
+    pathVector[pathc] = NULL;
+
     return 0;
 }
