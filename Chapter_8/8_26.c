@@ -115,7 +115,6 @@ int builtin_command(char **argv) {
 int getPathVector(char **pathVector) {
     char pathString[MAXPATH] = "";
     char *pathTemp;
-    
     if ((pathTemp = getenv("PATH")) != NULL) {
         strncpy(pathString, pathTemp);
     } else {
