@@ -33,7 +33,7 @@ char *heap_fitp;
 
 /* Given block prt bp, compute address of next and previous blocks */
 #define NEXT_BLKP(bp)   ((char *)(bp) + GET_SIZE(((char *)(bp) - WSIZE)))
-#define PREV_BLKP(bp)   ((char *)(bp) - GET_SIZE(((char *)(bp) - DSIZE)))
+#define PREV_BLKP(bp)   ((char *)(bp) - GET_SIZE(((char *)(bp) - DSIZE))) // Requires a footer in prev block
 
 int mm_init(void) {
     /* Create the initial empty heap */
@@ -102,6 +102,60 @@ static void *coalesce(char *bp) {
         PUT(FTRP(NEXT_BLKP(bp)), PACK(size, 0));
         bp = PREV_BLKP(bp);
     }
+}
+
+static void *coalesce_noFooter(char *bp) {
+    char *prev_block;
+    char *next_block = NEXT_BLKP(bp)
+    size_t prev_alloc;
+    size_t next_alloc = GET_ALLOC(HDRP(next_block));
+    size_t size = GET_SIZE(HDRP(bp));
+    /*
+        If no access to prev footer, need to start at heap_listp, and 
+        loop over each block
+        2 vars, current, and previous block
+        once current block = bp, we know the last block is what we're looking for
+    */
+
+    char *current = heap_listp, *previous;
+
+    // First iteration will ignore the prologue block
+    while (GET_SIZE(HDRP(current)) != 0) {
+        previous = current;
+        current = NEXT_BLKP(current);
+
+        if (current == bp) {
+            // previous is the block before bp;
+            prev_block = previous;
+        }
+    }
+
+    prev_alloc = GET_ALLOC(HDRP(prev_block0))
+
+    if (prev_alloc && next_alloc) {
+        return bp;
+    }
+
+    else if (prev_alloc && !next_alloc) {
+        size += GET_SIZE(HDRP(next_block));
+        PUT(HDRP(bp), PACK(size, 0));
+        PUT(FTRP(bp), PACK(size, 0));
+    }
+
+    else if (!prev_alloc && next_alloc) {
+        size += GET_SIZE(HDRP(prev_block));
+        PUT(HDRP(previous_block), PACK(size, 0));
+        PUT(FTRP(bp), PACK(size, 0));
+        bp = PREV_BLKP(bp);
+    }
+
+    else {
+        size += GET_SIZE(HDRP(prev_block)) + GET_SIZE(HDRP(next_block));
+        PUT(HDRP(prev_block), PACK(size, 0));
+        PUT(FTRP(next_block), PACK(size, 0));
+        bp = prev_block;
+    }
+
 }
 
 void *mm_maloc(size_t size) {
