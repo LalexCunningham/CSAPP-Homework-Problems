@@ -14,7 +14,7 @@ int main(int argc, char **argv) {
     /* Get a list of addrinfo records */
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_INET; /* IPv4 only */
-    //hints.ai_socktype = SOCK_STREAM; /* TCP Connections only */
+    hints.ai_socktype = SOCK_STREAM; /* TCP Connections only */
     if ((rc = getaddrinfo(argv[1], argv[2], &hints, &listp)) != 0) {
         fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(rc));
         exit(1);
